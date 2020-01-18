@@ -88,5 +88,13 @@ def get_doc_data(req: Request, resp: Response, doc_id: str):
     print(resp.media)
 
 
+@api.route('/api/docs/{doc_id}/images/{image_index}')
+def get_doc_data(req: Request, resp: Response, doc_id: str, image_index: str):
+    image_url = f'https://dc.watch.impress.co.jp/img/dcw/docs/{doc_id[0:4]}/{doc_id[4:7]}/{image_index.zfill(2)}.png'
+    image = session.get(image_url)
+    if image.ok:
+        resp.content = image.content
+
+
 if __name__ == '__main__':
     api.run()
