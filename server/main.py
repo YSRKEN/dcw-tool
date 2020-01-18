@@ -11,6 +11,7 @@ session = HTMLSession()
 
 @api.route("/api/docs")
 def get_docs_list(req: Request, resp: Response):
+    print('/api/docs')
     # 話の一覧を取得する
     docs_list: List[Dict[str, str]] = []
     for year in range(2017, 2030):
@@ -37,6 +38,7 @@ def get_docs_list(req: Request, resp: Response):
 
 @api.route('/api/docs/{doc_id}')
 def get_doc_data(req: Request, resp: Response, doc_id: str):
+    print(f'/api/docs/{doc_id}')
     # ある話についての情報を取得する
     page = session.get(f'https://dc.watch.impress.co.jp/docs/comic/clinic/{doc_id}.html')
     if not page.ok:
@@ -90,6 +92,7 @@ def get_doc_data(req: Request, resp: Response, doc_id: str):
 
 @api.route('/api/docs/{doc_id}/images/{image_index}')
 def get_doc_data(req: Request, resp: Response, doc_id: str, image_index: str):
+    print(f'/api/docs/{doc_id}/images/{image_index}')
     image_url = f'https://dc.watch.impress.co.jp/img/dcw/docs/{doc_id[0:4]}/{doc_id[4:7]}/{image_index.zfill(2)}.png'
     image = session.get(image_url)
     if image.ok:

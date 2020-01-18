@@ -5,13 +5,39 @@ const SERVER_PATH = window.location.port === '3000'
   ? 'http://127.0.0.1:5042'
   : window.location.protocol + '//' + window.location.host;
 
+interface DocInfo {
+  title: string;
+  id: number;
+  datetime: string;
+  images: number;
+  message: string;
+}
+
 const App: React.FC = () => {
-  const [docList, setDocList] = useState<{ title: string, doc_id: number }[]>([]);
+  const [docList, setDocList] = useState<DocInfo[]>([]);
 
   useEffect(() => {
-    fetch(SERVER_PATH + '/api/docs')
-      .then(res => res.json())
-      .then(res => setDocList(res));
+    const initialize = async () => {
+      const docs: {title: string, doc_id: number}[] = await (await fetch(SERVER_PATH + '/api/docs')).json();
+      const result: DocInfo[] = [];
+      let limit = 10;
+      for (const doc of docs) {
+        const docInfo: {datetime: string, images: number, message: string} = await (await fetch(SERVER_PATH + '/api/docs/' + doc.doc_id)).json();
+        result.push({
+          title: doc.title,
+          id: doc.doc_id,
+          datetime: docInfo.datetime,
+          images: docInfo.images,
+          message: docInfo.message
+        });
+        limit -= 1;
+        if (limit <= 0) {
+          break;
+        }
+      }
+      setDocList(result);
+    };
+    initialize();
   }, []);
 
   return (
@@ -26,6 +52,8 @@ const App: React.FC = () => {
           <table className="table table-sm table-bordered">
             <thead className="table-light">
               <tr>
+                <th scope="col">日時</th>
+                <th scope="col">画</th>
                 <th scope="col">題名</th>
               </tr>
             </thead>
@@ -33,7 +61,9 @@ const App: React.FC = () => {
               {
                 docList.map(record => {
                   return (
-                    <tr key={record.doc_id}>
+                    <tr key={record.id}>
+                      <td>{record.datetime}</td>
+                      <td>{record.images}</td>
                       <td>{record.title}</td>
                     </tr>
                   );
