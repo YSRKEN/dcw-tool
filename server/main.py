@@ -1,5 +1,4 @@
 import re
-from pprint import pprint
 from typing import Dict, List
 
 import responder
@@ -23,9 +22,10 @@ def get_docs_list(req: Request, resp: Response):
         for row in html.find('li.item.comic.clinic'):
             title = row.find('p.title > a', first=True).text
             doc_url: str = row.find('p.title > a', first=True).attrs['href']
+            doc_id = re.sub(r'.*?(\d+)\.html', r'\1', doc_url)
             temp_list.append({
                 'title': title,
-                'doc_url': doc_url
+                'doc_id': doc_id
             })
         temp_list.reverse()
         for record in temp_list:
@@ -33,6 +33,11 @@ def get_docs_list(req: Request, resp: Response):
 
     # noinspection PyDunderSlots,PyUnresolvedReferences
     resp.media = docs_list
+
+
+@api.route('/api/docs/x')
+def get_doc_data(req: Request, resp: Response):
+    pass
 
 
 if __name__ == '__main__':
