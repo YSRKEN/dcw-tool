@@ -25,7 +25,7 @@ def get_docs_list(req: Request, resp: Response):
             doc_id = re.sub(r'.*?(\d+)\.html', r'\1', doc_url)
             temp_list.append({
                 'title': title,
-                'doc_id': doc_id
+                'doc_id': int(doc_id)
             })
         temp_list.reverse()
         for record in temp_list:
@@ -44,7 +44,7 @@ def get_doc_data(req: Request, resp: Response, doc_id: str):
         if not page.ok:
             resp.media = {
                 'datetime': '',
-                'images': [],
+                'images': 0,
                 'message': ''
             }
             return
@@ -53,18 +53,18 @@ def get_doc_data(req: Request, resp: Response, doc_id: str):
     if page_datetime is None:
         resp.media = {
             'datetime': '',
-            'images': [],
+            'images': 0,
             'message': ''
         }
         return
     else:
         page_datetime = page_datetime.text
-    page_images = []
+    page_images = 0
     for i in range(1, 100):
         image_url = f'https://dc.watch.impress.co.jp/img/dcw/docs/{doc_id[0:4]}/{doc_id[4:7]}/{str(i).zfill(2)}.png'
         image = session.get(image_url)
         if image.ok:
-            page_images.append(image_url)
+            page_images += 1
         else:
             break
     page_p_list = [x.text for x in html.find('p')]
