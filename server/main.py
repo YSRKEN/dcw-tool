@@ -5,7 +5,7 @@ import responder
 from requests_html import HTML, HTMLSession
 from responder.models import Request, Response
 
-api = responder.API()
+api = responder.API(cors=True, cors_params={'allow_origins': ['http://localhost:3000']})
 session = HTMLSession()
 
 
