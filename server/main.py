@@ -1,5 +1,5 @@
 import re
-from typing import Dict, List
+from typing import Dict, List, Union
 
 import responder
 from requests_html import HTML, HTMLSession
@@ -7,6 +7,8 @@ from responder.models import Request, Response
 
 api = responder.API(cors=True, cors_params={'allow_origins': ['http://localhost:3000']})
 session = HTMLSession()
+DB_PATH = 'database.db'
+DB_FLG = True
 
 
 @api.route("/api/docs")
@@ -36,29 +38,25 @@ def get_docs_list(req: Request, resp: Response):
     resp.media = docs_list
 
 
-@api.route('/api/docs/{doc_id}')
-def get_doc_data(req: Request, resp: Response, doc_id: str):
-    print(f'/api/docs/{doc_id}')
+def get_doc_data_impl(doc_id: str) -> Dict[str, Union[str, int]]:
     # ある話についての情報を取得する
     page = session.get(f'https://dc.watch.impress.co.jp/docs/comic/clinic/{doc_id}.html')
     if not page.ok:
         page = session.get(f'http://dc.watch.impress.co.jp/docs/comic/clinic/{doc_id}.html')
         if not page.ok:
-            resp.media = {
+            return {
                 'datetime': '',
                 'images': 0,
                 'message': ''
             }
-            return
     html: HTML = page.html
     page_datetime = html.find('p.publish-date', first=True)
     if page_datetime is None:
-        resp.media = {
+        return {
             'datetime': '',
             'images': 0,
             'message': ''
         }
-        return
     else:
         page_datetime = page_datetime.text
     page_images = 0
@@ -82,12 +80,20 @@ def get_doc_data(req: Request, resp: Response, doc_id: str):
                 page_message = page_p_list[i] + '\n\n' + page_message
     else:
         page_message = ''
-    resp.media = {
+    return {
         'datetime': page_datetime,
         'images': page_images,
         'message': page_message
     }
-    print(resp.media)
+
+
+@api.route('/api/docs/{doc_id}')
+def get_doc_data(req: Request, resp: Response, doc_id: str):
+    print(f'/api/docs/{doc_id}')
+    # ある話についての情報を取得する
+    data = get_doc_data_impl(doc_id)
+    print(data)
+    resp.media = data
 
 
 @api.route('/api/docs/{doc_id}/images/{image_index}')
