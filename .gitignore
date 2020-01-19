@@ -1,3 +1,4 @@
 server/venv/
 server/.idea/workspace.xml
 server/api-docs.json
+server/database.db

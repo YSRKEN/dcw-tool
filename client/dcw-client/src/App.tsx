@@ -20,7 +20,6 @@ const App: React.FC = () => {
     const initialize = async () => {
       const docs: {title: string, doc_id: number}[] = await (await fetch(SERVER_PATH + '/api/docs')).json();
       const result: DocInfo[] = [];
-      let limit = 10;
       for (const doc of docs) {
         const docInfo: {datetime: string, images: number, message: string} = await (await fetch(SERVER_PATH + '/api/docs/' + doc.doc_id)).json();
         result.push({
@@ -30,10 +29,6 @@ const App: React.FC = () => {
           images: docInfo.images,
           message: docInfo.message
         });
-        limit -= 1;
-        if (limit <= 0) {
-          break;
-        }
       }
       setDocList(result);
     };
