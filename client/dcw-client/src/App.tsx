@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import 'App.css';
 
-const SERVER_PATH = window.location.port === '3000'
+const SERVER_PATH = window.location.port === '3001'
   ? 'http://127.0.0.1:5042'
   : window.location.protocol + '//' + window.location.host;
 
@@ -13,26 +13,50 @@ interface DocInfo {
   message: string;
 }
 
+const getDocInfo = async (doc_id: number): Promise<{datetime: string, images: number, message: string}> => {
+  const cacheKey = `docs/${doc_id}`;
+  const cacheData = window.localStorage.getItem(cacheKey);
+  if (cacheData !== null) {
+    return JSON.parse(cacheData);
+  } else {
+    const docInfo = await (await fetch(SERVER_PATH + '/api/docs/' + doc_id)).json();
+    window.localStorage.setItem(cacheKey, JSON.stringify(docInfo));
+    return docInfo;
+  }
+};
+
+const getDocList = async(): Promise<DocInfo[]> => {
+  const docs: {title: string, doc_id: number}[] = await (await fetch(SERVER_PATH + '/api/docs')).json();
+    const result: DocInfo[] = [];
+    for (const doc of docs) {
+      const docInfo = await getDocInfo(doc.doc_id);
+      result.push({
+        title: doc.title,
+        id: doc.doc_id,
+        datetime: docInfo.datetime,
+        images: docInfo.images,
+        message: docInfo.message
+      });
+    }
+    return result;
+};
+
 const App: React.FC = () => {
   const [docList, setDocList] = useState<DocInfo[]>([]);
 
   useEffect(() => {
     const initialize = async () => {
-      const docs: {title: string, doc_id: number}[] = await (await fetch(SERVER_PATH + '/api/docs')).json();
-      const result: DocInfo[] = [];
-      for (const doc of docs) {
-        const docInfo: {datetime: string, images: number, message: string} = await (await fetch(SERVER_PATH + '/api/docs/' + doc.doc_id)).json();
-        result.push({
-          title: doc.title,
-          id: doc.doc_id,
-          datetime: docInfo.datetime,
-          images: docInfo.images,
-          message: docInfo.message
-        });
+      const cacheData = window.localStorage.getItem('docs');
+      if (cacheData !== null) {
+        setDocList(JSON.parse(cacheData));
+      } else {
+        const docListData = await getDocList();
+        setDocList(docListData);
+        window.localStorage.setItem('docs', JSON.stringify(docListData));
       }
-      setDocList(result);
     };
     initialize();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
