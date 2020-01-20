@@ -43,6 +43,7 @@ const getDocList = async(): Promise<DocInfo[]> => {
 
 const App: React.FC = () => {
   const [docList, setDocList] = useState<DocInfo[]>([]);
+  const [loadingFlg, setLoadingFlg] = useState<boolean>(false);
 
   useEffect(() => {
     const initialize = async () => {
@@ -59,11 +60,38 @@ const App: React.FC = () => {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useEffect(() => {
+    const update = async () => {
+      if (loadingFlg) {
+        const docListData = await getDocList();
+        setDocList(docListData);
+        window.localStorage.setItem('docs', JSON.stringify(docListData));
+        setLoadingFlg(false);
+      }
+    };
+    update();
+  }, [loadingFlg]);
+
+  const upDateDocList = () => {
+    setLoadingFlg(true);
+  };
+
   return (
     <div className="container">
       <div className="row">
         <div className="col my-3">
           <h1 className="text-center">カメラバカ</h1>
+        </div>
+      </div>
+      <div className="row">
+        <div className="col my-3">
+          <form>
+            {
+              loadingFlg
+              ? <button type="button" className="btn btn-light" disabled>更新中...</button>
+              : <button type="button" className="btn btn-primary" onClick={upDateDocList}>話リストを更新</button>
+            }
+          </form>
         </div>
       </div>
       <div className="row">

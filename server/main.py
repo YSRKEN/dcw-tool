@@ -10,7 +10,7 @@ from responder.models import Request, Response
 api = responder.API(cors=True, cors_params={'allow_origins': ['http://localhost:3001']})
 session = HTMLSession()
 DB_PATH = 'database.db'
-DB_UPDATE_FLG = False
+DB_UPDATE_FLG = True
 
 
 def get_docs_list_impl() -> List[Dict[str, Union[str, int]]]:
