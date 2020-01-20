@@ -160,4 +160,4 @@ def get_doc_image(req: Request, resp: Response, doc_id: str, image_index: str):
 
 
 if __name__ == '__main__':
-    api.run()
+    api.run(port=8000)

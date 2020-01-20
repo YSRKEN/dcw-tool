@@ -1,8 +1,3 @@
 server/venv/
 server/.idea/workspace.xml
-server/api-docs.json
-server/database.db
-server/root/
-server/static/
-server/templates/
-server/__pycache__/
+*.pyc
