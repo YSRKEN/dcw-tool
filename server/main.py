@@ -95,6 +95,18 @@ def get_doc_image_impl(doc_id: str, image_index: str) -> bytes:
         return b''
 
 
+@api.route("/", static=True)
+def index(req: Request, resp: Response):
+    # noinspection PyDunderSlots,PyUnresolvedReferences
+    resp.content = api.template('index.html')
+
+
+@api.route("/{static_file}")
+def manifest(req: Request, resp: Response, static_file: str):
+    with open(f'./root/{static_file}', mode='rb') as f:
+        resp.content = f.read()
+
+
 @api.route("/api/docs")
 def get_docs_list(req: Request, resp: Response):
     print('/api/docs')
