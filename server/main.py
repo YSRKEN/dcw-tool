@@ -86,6 +86,15 @@ def get_doc_data_impl(doc_id: str) -> Dict[str, Union[str, int]]:
     }
 
 
+def get_doc_image_impl(doc_id: str, image_index: str) -> bytes:
+    image_url = f'https://dc.watch.impress.co.jp/img/dcw/docs/{doc_id[0:4]}/{doc_id[4:7]}/{image_index.zfill(2)}.png'
+    image = session.get(image_url)
+    if image.ok:
+        return image.content
+    else:
+        return b''
+
+
 @api.route("/api/docs")
 def get_docs_list(req: Request, resp: Response):
     print('/api/docs')
@@ -119,12 +128,23 @@ def get_doc_data(req: Request, resp: Response, doc_id: str):
 
 
 @api.route('/api/docs/{doc_id}/images/{image_index}')
-def get_doc_data(req: Request, resp: Response, doc_id: str, image_index: str):
+def get_doc_image(req: Request, resp: Response, doc_id: str, image_index: str):
     print(f'/api/docs/{doc_id}/images/{image_index}')
-    image_url = f'https://dc.watch.impress.co.jp/img/dcw/docs/{doc_id[0:4]}/{doc_id[4:7]}/{image_index.zfill(2)}.png'
-    image = session.get(image_url)
-    if image.ok:
-        resp.content = image.content
+    # ある画像についての情報を返す
+    with closing(sqlite3.connect(DB_PATH)) as conn:
+        c = conn.cursor()
+        if DB_UPDATE_FLG:
+            c.execute('CREATE TABLE IF NOT EXISTS images (id TEXT, image_index TEXT, data BLOB)')
+        result = c.execute(f'SELECT data FROM images WHERE id="{doc_id}" AND image_index="{image_index}"').fetchall()
+        if len(result) > 0:
+            data = result[0][0]
+        else:
+            data = get_doc_image_impl(doc_id, image_index)
+            if DB_UPDATE_FLG:
+                c.execute('INSERT INTO images (id, image_index, data) VALUES (?, ?, ?)',
+                          (doc_id, image_index, data))
+        conn.commit()
+    resp.content = data
 
 
 if __name__ == '__main__':
