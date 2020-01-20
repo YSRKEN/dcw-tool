@@ -5,3 +5,4 @@ server/database.db
 server/root/
 server/static/
 server/templates/
+server/__pycache__/
