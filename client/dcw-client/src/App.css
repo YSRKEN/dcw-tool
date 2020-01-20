@@ -1,1 +1,7 @@
-
+button.doc-button {
+    border: 0;
+    background-color: lightgray;
+}
+pre.doc-message {
+    white-space: pre-wrap;
+}
