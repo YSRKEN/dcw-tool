@@ -103,6 +103,24 @@ const App: React.FC = () => {
     return url.createObjectURL(imageBinary);
   };
 
+  const backToDocList = () => {
+    setViewMode('DocList');
+  }
+
+  const backPage = () => {
+    const index = docList.findIndex(record => record.id === docInfo.id);
+    if (index >= 1) {
+      onClickDoc(index - 1);
+    }
+  };
+
+  const nextPage = () => {
+    const index = docList.findIndex(record => record.id === docInfo.id);
+    if (index < docList.length - 1) {
+      onClickDoc(index + 1);
+    }
+  };
+
   switch (viewMode) {
     case 'DocList':
       return (
@@ -164,8 +182,15 @@ const App: React.FC = () => {
             </div>
           </div>
           <div className="row">
+            <div className="col my-3 text-center">
+              <button type="button" className="btn btn-secondary mt-3 btn-sm" onClick={backPage}>←</button>
+              <button type="button" className="btn btn-primary mt-3 btn-sm mx-3" onClick={backToDocList}>リストに戻る</button>
+              <button type="button" className="btn btn-secondary mt-3 btn-sm" onClick={nextPage}>→</button>
+            </div>
+          </div>
+          <div className="row">
             <div className="col my-3">
-            <span className="text-center"><strong>【本編】</strong></span>
+              <span className="text-center"><strong>【本編】</strong></span>
               {
                 imageUrlList.map((url, index) => {
                   return (<div key={index}>
@@ -175,6 +200,13 @@ const App: React.FC = () => {
               }
               <span className="text-center"><strong>【解説】</strong></span>
               <pre className="doc-message">{docInfo.message}</pre>
+            </div>
+          </div>
+          <div className="row">
+            <div className="col my-3 text-center">
+              <button type="button" className="btn btn-secondary mt-3 btn-sm" onClick={backPage}>←</button>
+              <button type="button" className="btn btn-primary mt-3 btn-sm mx-3" onClick={backToDocList}>リストに戻る</button>
+              <button type="button" className="btn btn-secondary mt-3 btn-sm" onClick={nextPage}>→</button>
             </div>
           </div>
         </div>
