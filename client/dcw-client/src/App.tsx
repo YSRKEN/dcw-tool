@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import 'App.css';
 
 const SERVER_PATH = window.location.port === '3001'
-  ? 'http://127.0.0.1:8000'
+  ? 'http://127.0.0.1:8080'
   : window.location.protocol + '//' + window.location.host;
 
 interface DocInfo {
