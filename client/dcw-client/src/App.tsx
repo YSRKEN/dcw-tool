@@ -98,9 +98,25 @@ const App: React.FC = () => {
   };
 
   const loadImageUrl = async (id: number, index: number) => {
-    const imageBinary = await (await fetch(SERVER_PATH + `/api/docs/${id}/images/${index}`)).blob();
-    const url = window.URL || window.webkitURL;
-    return url.createObjectURL(imageBinary);
+    const cacheKey = `docs/${id}/images/${index}`;
+    const cacheData = window.localStorage.getItem(cacheKey);
+    if (cacheData !== null) {
+      return JSON.parse(cacheData);
+    }
+    return new Promise<string>((resolve) => {
+      const fr = new FileReader();
+      fr.onload = () => {
+        try {
+          window.localStorage.setItem(cacheKey, JSON.stringify(fr.result));
+        } catch {
+          console.error('ローカルストレージの容量制限に引っかかりました.');
+        }
+        resolve(fr.result as string);
+      };
+      fetch(SERVER_PATH + `/api/docs/${id}/images/${index}`)
+        .then(data => data.blob())
+        .then(blob => fr.readAsDataURL(blob));
+    });
   };
 
   const backToDocList = () => {
