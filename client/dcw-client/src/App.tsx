@@ -1,9 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import 'App.css';
+import Dexie from 'dexie';
 
 const SERVER_PATH = window.location.port === '3001'
   ? 'http://127.0.0.1:8080'
   : window.location.protocol + '//' + window.location.host;
+
+const db = new Dexie("friend_database");
+db.version(1).stores({
+  images: 'apiKey,imageData'
+});
 
 interface DocInfo {
   title: string;
@@ -98,9 +104,25 @@ const App: React.FC = () => {
   };
 
   const loadImageUrl = async (id: number, index: number) => {
-    const imageBinary = await (await fetch(SERVER_PATH + `/api/docs/${id}/images/${index}`)).blob();
-    const url = window.URL || window.webkitURL;
-    return url.createObjectURL(imageBinary);
+    const cacheKey = `docs/${id}/images/${index}`;
+    const cacheDataList = await (db as any).images.where('apiKey').above(cacheKey).toArray();
+    if (cacheDataList.length > 0) {
+      return JSON.parse(cacheDataList[0]['imageData']);
+    }
+    return new Promise<string>((resolve) => {
+      const fr = new FileReader();
+      fr.onload = async () => {
+        try {
+          await (db as any).images.put({apiKey: cacheKey, imageData: JSON.stringify(fr.result)});
+        } catch {
+          console.error('ローカルストレージの容量制限に引っかかりました.');
+        }
+        resolve(fr.result as string);
+      };
+      fetch(SERVER_PATH + `/api/docs/${id}/images/${index}`)
+        .then(data => data.blob())
+        .then(blob => fr.readAsDataURL(blob));
+    });
   };
 
   const backToDocList = () => {
