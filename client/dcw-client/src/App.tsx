@@ -1,9 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import 'App.css';
+import Dexie from 'dexie';
 
 const SERVER_PATH = window.location.port === '3001'
   ? 'http://127.0.0.1:8080'
   : window.location.protocol + '//' + window.location.host;
+
+const db = new Dexie("friend_database");
+db.version(1).stores({
+  images: 'apiKey,imageData'
+});
 
 interface DocInfo {
   title: string;
@@ -99,15 +105,15 @@ const App: React.FC = () => {
 
   const loadImageUrl = async (id: number, index: number) => {
     const cacheKey = `docs/${id}/images/${index}`;
-    const cacheData = window.localStorage.getItem(cacheKey);
-    if (cacheData !== null) {
-      return JSON.parse(cacheData);
+    const cacheDataList = await (db as any).images.where('apiKey').above(cacheKey).toArray();
+    if (cacheDataList.length > 0) {
+      return JSON.parse(cacheDataList[0]['imageData']);
     }
     return new Promise<string>((resolve) => {
       const fr = new FileReader();
-      fr.onload = () => {
+      fr.onload = async () => {
         try {
-          window.localStorage.setItem(cacheKey, JSON.stringify(fr.result));
+          await (db as any).images.put({apiKey: cacheKey, imageData: JSON.stringify(fr.result)});
         } catch {
           console.error('ローカルストレージの容量制限に引っかかりました.');
         }
