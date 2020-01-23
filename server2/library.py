@@ -52,14 +52,8 @@ def get_doc_data_impl(doc_id: str) -> Dict[str, Union[str, int]]:
         }
     else:
         page_datetime = page_datetime.text
-    page_images = 0
-    for i in range(1, 100):
-        image_url = f'https://dc.watch.impress.co.jp/img/dcw/docs/{doc_id[0:4]}/{doc_id[4:7]}/{str(i).zfill(2)}.png'
-        image = session.get(image_url)
-        if image.ok:
-            page_images += 1
-        else:
-            break
+    image_tags = html.find('div.img-wrap-w > img.resource')
+    page_images = len(image_tags)
     page_p_list = [x.text for x in html.find('p')]
     p_index = [i for i, x in enumerate(page_p_list) if '※本コンテンツはフィクションであり' in x]
     if len(p_index) > 0:
@@ -85,5 +79,11 @@ def get_doc_image_impl(doc_id: str, image_index: str) -> bytes:
     image = session.get(image_url)
     if image.ok:
         return image.content
-    else:
-        return b''
+
+    # 一部ページ対策
+    image_url2 = f'https://dc.watch.impress.co.jp/img/dcw/docs/{doc_id[0:4]}/{doc_id[4:7]}/{image_index.zfill(2).replace("0", "a")}.png'
+    image = session.get(image_url2)
+    if image.ok:
+        return image.content
+
+    return b''
