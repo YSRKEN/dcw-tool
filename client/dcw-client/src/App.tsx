@@ -47,6 +47,44 @@ const getDocList = async (): Promise<DocInfo[]> => {
   return result;
 };
 
+const getDocKey = (docInfo: DocInfo) => {
+  if (['ケルンの衝撃', '新たなるニコン', 'キヤノンの逆襲', 'パナソニックの帰還', 'ライカの脅威',
+      'ツァイスの攻撃', 'フジの復讐', 'シグマの覚醒', 'グレイテストの時代']
+        .includes(docInfo.title)) {
+    return 'フォトキナ2018';
+  }
+  if (docInfo.title.includes('EOSの目覚め')) {
+    return 'EOSの目覚め';
+  }
+  if (docInfo.title.includes('エレガント') && docInfo.title.includes('な')) {
+    return 'ニコンヌーヴォー';
+  }
+  const kakkoIndex = docInfo.title.indexOf('（');
+  if (kakkoIndex >= 0) {
+    return docInfo.title.substring(0, kakkoIndex);
+  }
+  return docInfo.title;
+};
+
+const calcDocTree = (docList: DocInfo[]): {key: string, list: DocInfo[]}[] => {
+  const result: {key: string, list: DocInfo[]}[] = [];
+  for (const docInfo of docList) {
+    const key = getDocKey(docInfo);
+    let flg = false;
+    for (const resultRecord of result) {
+      if (resultRecord.key === key) {
+        resultRecord.list.push(docInfo);
+        flg = true;
+        break;
+      }
+    }
+    if (!flg) {
+      result.push({key, list: [docInfo]});
+    }
+  }
+  return result;
+};
+
 type ViewMode = 'DocList' | 'DocView';
 
 const App: React.FC = () => {
@@ -82,6 +120,8 @@ const App: React.FC = () => {
       if (loadingFlg) {
         const docListData = await getDocList();
         setDocList(docListData);
+        const docTree = calcDocTree(docListData);
+        console.log(docTree);
         window.localStorage.setItem('docs', JSON.stringify(docListData));
         setLoadingFlg(false);
       }
