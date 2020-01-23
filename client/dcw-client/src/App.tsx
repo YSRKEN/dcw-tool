@@ -95,6 +95,7 @@ const App: React.FC = () => {
 
   const onClickDoc = async (index: number) => {
     setDocInfo({ ...docList[index] });
+    setImageUrlList([]);
     const newImageUrlList: string[] = [];
     for (let i = 1; i <= docList[index].images; i++) {
       newImageUrlList.push(await loadImageUrl(docList[index].id, i));
@@ -113,7 +114,7 @@ const App: React.FC = () => {
       const fr = new FileReader();
       fr.onload = async () => {
         try {
-          await (db as any).images.put({apiKey: cacheKey, imageData: JSON.stringify(fr.result)});
+          await (db as any).images.put({ apiKey: cacheKey, imageData: JSON.stringify(fr.result) });
         } catch {
           console.error('IndexedDBの容量制限に引っかかりました.');
         }
@@ -214,11 +215,19 @@ const App: React.FC = () => {
             <div className="col my-3">
               <span className="text-center"><strong>【本編】</strong></span>
               {
-                imageUrlList.map((url, index) => {
-                  return (<div key={index}>
-                    <img className="w-100 p-3" alt={'' + index} src={url} />
-                  </div>);
-                })
+                imageUrlList.length > 0
+                  ? imageUrlList.map((url, index) => {
+                    return (<div key={index}>
+                      <img className="w-100 p-3" alt={'' + index} src={url} />
+                    </div>);
+                  })
+                  : <>
+                    <br />
+                    <div className="spinner-border" role="status">
+                      <span className="sr-only">読込中……</span>
+                    </div>
+                    <br />
+                  </>
               }
               <span className="text-center"><strong>【解説】</strong></span>
               <pre className="doc-message">{docInfo.message}</pre>
