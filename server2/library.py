@@ -20,6 +20,11 @@ def get_docs_list_impl() -> List[Dict[str, Union[str, int]]]:
             title = row.find('p.title > a', first=True).text
             doc_url: str = row.find('p.title > a', first=True).attrs['href']
             doc_id = re.sub(r'.*?(\d+)\.html', r'\1', doc_url)
+
+            # 特殊な回を弾く
+            if '1191350' in doc_id:
+                continue
+
             temp_list.append({
                 'title': title,
                 'doc_id': int(doc_id)
@@ -91,4 +96,18 @@ def get_doc_image_impl(doc_id: str, image_index: str) -> bytes:
     if image.ok:
         return image.content
 
+    image_url4 = f'https://dc.watch.impress.co.jp/img/dcw/docs/{doc_id[0:4]}/{doc_id[4:7]}/y{image_index.zfill(2)}.png'
+    image = session.get(image_url4)
+    if image.ok:
+        return image.content
+
+    image_url5 = f'https://dc.watch.impress.co.jp/img/dcw/docs/{doc_id[0:4]}/{doc_id[4:7]}/x{image_index.zfill(2)}.png'
+    image = session.get(image_url5)
+    if image.ok:
+        return image.content
+
+    image_url6 = f'https://dc.watch.impress.co.jp/img/dcw/docs/{doc_id[0:4]}/{doc_id[4:7]}/z{image_index.zfill(2)}.png'
+    image = session.get(image_url6)
+    if image.ok:
+        return image.content
     return b''
