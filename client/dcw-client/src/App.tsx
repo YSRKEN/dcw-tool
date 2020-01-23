@@ -113,10 +113,15 @@ const App: React.FC = () => {
     return new Promise<string>((resolve) => {
       const fr = new FileReader();
       fr.onload = async () => {
-        try {
-          await (db as any).images.put({ apiKey: cacheKey, imageData: JSON.stringify(fr.result) });
-        } catch {
-          console.error('IndexedDBの容量制限に引っかかりました.');
+        if (JSON.stringify(fr.result).length >= 10) {
+          try {
+            await (db as any).images.put({ apiKey: cacheKey, imageData: JSON.stringify(fr.result) });
+          } catch {
+            console.error('IndexedDBの容量制限に引っかかりました.');
+          }
+        } else {
+          // 読み込みエラー
+          console.error(`画像「${cacheKey}」が正常に読み込めていません.`);
         }
         resolve(fr.result as string);
       };

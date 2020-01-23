@@ -86,4 +86,9 @@ def get_doc_image_impl(doc_id: str, image_index: str) -> bytes:
     if image.ok:
         return image.content
 
+    image_url3 = f'https://dc.watch.impress.co.jp/img/dcw/docs/{doc_id[0:4]}/{doc_id[4:7]}/a{image_index.zfill(2)}.png'
+    image = session.get(image_url3)
+    if image.ok:
+        return image.content
+
     return b''
