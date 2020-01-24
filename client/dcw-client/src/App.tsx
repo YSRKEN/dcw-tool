@@ -85,10 +85,38 @@ const calcDocTree = (docList: DocInfo[]): {key: string, list: DocInfo[]}[] => {
   return result;
 };
 
+const loadImageUrl = async (id: number, index: number) => {
+  const cacheKey = `docs/${id}/images/${index}`;
+  const cacheDataList = await (db as any).images.where('apiKey').equals(cacheKey).toArray();
+  if (cacheDataList.length > 0) {
+    return JSON.parse(cacheDataList[0]['imageData']);
+  }
+  return new Promise<string>((resolve) => {
+    const fr = new FileReader();
+    fr.onload = async () => {
+      if (JSON.stringify(fr.result).length >= 10) {
+        try {
+          await (db as any).images.put({ apiKey: cacheKey, imageData: JSON.stringify(fr.result) });
+        } catch {
+          console.error('IndexedDBの容量制限に引っかかりました.');
+        }
+      } else {
+        // 読み込みエラー
+        console.error(`画像「${cacheKey}」が正常に読み込めていません.`);
+      }
+      resolve(fr.result as string);
+    };
+    fetch(SERVER_PATH + `/api/docs/${id}/images/${index}`)
+      .then(data => data.blob())
+      .then(blob => fr.readAsDataURL(blob));
+  });
+};
+
 type ViewMode = 'DocList' | 'DocView';
 
 const App: React.FC = () => {
   const [docList, setDocList] = useState<DocInfo[]>([]);
+  const [docTree, setDocTree] = useState<{key: string, list: DocInfo[]}[]>([]);
   const [loadingFlg, setLoadingFlg] = useState<boolean>(false);
   const [viewMode, setViewMode] = useState<ViewMode>('DocList');
   const [docInfo, setDocInfo] = useState<DocInfo>({
@@ -116,12 +144,14 @@ const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    setDocTree(calcDocTree(docList));
+  }, [docList]);
+
+  useEffect(() => {
     const update = async () => {
       if (loadingFlg) {
         const docListData = await getDocList();
         setDocList(docListData);
-        const docTree = calcDocTree(docListData);
-        console.log(docTree);
         window.localStorage.setItem('docs', JSON.stringify(docListData));
         setLoadingFlg(false);
       }
@@ -142,33 +172,6 @@ const App: React.FC = () => {
     }
     setImageUrlList(newImageUrlList);
     setViewMode('DocView');
-  };
-
-  const loadImageUrl = async (id: number, index: number) => {
-    const cacheKey = `docs/${id}/images/${index}`;
-    const cacheDataList = await (db as any).images.where('apiKey').equals(cacheKey).toArray();
-    if (cacheDataList.length > 0) {
-      return JSON.parse(cacheDataList[0]['imageData']);
-    }
-    return new Promise<string>((resolve) => {
-      const fr = new FileReader();
-      fr.onload = async () => {
-        if (JSON.stringify(fr.result).length >= 10) {
-          try {
-            await (db as any).images.put({ apiKey: cacheKey, imageData: JSON.stringify(fr.result) });
-          } catch {
-            console.error('IndexedDBの容量制限に引っかかりました.');
-          }
-        } else {
-          // 読み込みエラー
-          console.error(`画像「${cacheKey}」が正常に読み込めていません.`);
-        }
-        resolve(fr.result as string);
-      };
-      fetch(SERVER_PATH + `/api/docs/${id}/images/${index}`)
-        .then(data => data.blob())
-        .then(blob => fr.readAsDataURL(blob));
-    });
   };
 
   const backToDocList = () => {
