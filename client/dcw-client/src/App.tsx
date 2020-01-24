@@ -186,16 +186,44 @@ const App: React.FC = () => {
   }
 
   const backPage = () => {
-    const index = docList.findIndex(record => record.id === docInfo.id);
-    if (index >= 1) {
-      onClickDoc(docList[index - 1]);
+    if (treeFlg) {
+      for (let i = 0; i < docTree.length; i += 1) {
+        for (let j = 0; j < docTree[i].list.length; j += 1) {
+          if (docTree[i].list[j].id === docInfo.id) {
+            if (j > 0) {
+              onClickDoc(docTree[i].list[j - 1]);
+            } else if (i > 0){
+              onClickDoc(docTree[i - 1].list[docTree[i - 1].list.length - 1]);
+            }
+          }
+        }
+      }
+    } else {
+      const index = docList.findIndex(record => record.id === docInfo.id);
+      if (index >= 1) {
+        onClickDoc(docList[index - 1]);
+      }
     }
   };
 
   const nextPage = () => {
-    const index = docList.findIndex(record => record.id === docInfo.id);
-    if (index < docList.length - 1) {
-      onClickDoc(docList[index + 1]);
+    if (treeFlg) {
+      for (let i = 0; i < docTree.length; i += 1) {
+        for (let j = 0; j < docTree[i].list.length; j += 1) {
+          if (docTree[i].list[j].id === docInfo.id) {
+            if (j < docTree[i].list.length - 1) {
+              onClickDoc(docTree[i].list[j + 1]);
+            } else if (i < docTree.length - 1){
+              onClickDoc(docTree[i + 1].list[0]);
+            }
+          }
+        }
+      }
+    } else {
+      const index = docList.findIndex(record => record.id === docInfo.id);
+      if (index < docList.length - 1) {
+        onClickDoc(docList[index + 1]);
+      }
     }
   };
 
