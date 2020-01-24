@@ -118,13 +118,14 @@ const loadImageUrl = async (id: number, index: number) => {
   });
 };
 
-type ViewMode = 'DocList' | 'DocView' | 'DocTree';
+type ViewMode = 'DocList' | 'DocView';
 
 const App: React.FC = () => {
   const [docList, setDocList] = useState<DocInfo[]>([]);
   const [docTree, setDocTree] = useState<{ key: string, list: DocInfo[] }[]>([]);
   const [loadingFlg, setLoadingFlg] = useState<boolean>(false);
-  const [viewMode, setViewMode] = useState<ViewMode>('DocTree');
+  const [viewMode, setViewMode] = useState<ViewMode>('DocList');
+  const [treeFlg, setTreeFlg] = useState(false);
   const [docInfo, setDocInfo] = useState<DocInfo>({
     title: '',
     id: 0,
@@ -199,119 +200,123 @@ const App: React.FC = () => {
   };
 
   switch (viewMode) {
-    case 'DocTree':
-      return (
-        <div className="container">
-          <div className="row">
-            <div className="col my-3">
-              <h1 className="text-center">カメラバカ</h1>
+    case 'DocList':
+      if (treeFlg) {
+        return (
+          <div className="container">
+            <div className="row">
+              <div className="col my-3">
+                <h1 className="text-center">カメラバカ</h1>
+              </div>
             </div>
-          </div>
-          <div className="row">
-            <div className="col my-3">
-              <form>
-                {
-                  loadingFlg
-                    ? <button type="button" className="btn btn-light" disabled>更新中...</button>
-                    : <button type="button" className="btn btn-primary" onClick={upDateDocList}>話リストを更新</button>
-                }
-              </form>
+            <div className="row">
+              <div className="col my-3">
+                <form>
+                  {
+                    loadingFlg
+                      ? <button type="button" className="btn btn-light" disabled>更新中...</button>
+                      : <button type="button" className="btn btn-primary" onClick={upDateDocList}>ツリーを更新</button>
+                  }
+                  <button type="button" className="btn btn-secondary ml-3" onClick={() => setTreeFlg(false)}>一覧表示にする</button>
+                </form>
+              </div>
             </div>
-          </div>
-          <div className="row">
-            <div className="col my-3">
-              <div className="accordion" id="accordion" role="tablist" aria-multiselectable="true">
-                {
-                  docTree.map(record => {
-                    return (<>
-                      <details key={record.key}>
-                        <summary>[{record.list.length}件] {record.key}</summary>
-                        <table className="table table-sm table-bordered table-responsive text-nowrap">
-                          <thead className="table-light">
-                            <tr>
-                              <th scope="col">題名</th>
-                              <th scope="col">日時</th>
-                              <th scope="col">画</th>
-                            </tr>
-                          </thead>
-                          <tbody>
-                            {
-                              record.list.map((record2) => {
-                                return (
-                                  <tr key={record2.id}>
-                                    <td className="doc-button p-1 align-middle">
-                                      <button className="doc-button" onClick={() => onClickDoc(record2)}>
-                                        {record2.title}
-                                      </button>
-                                    </td>
-                                    <td>{record2.datetime}</td>
-                                    <td>{record2.images}</td>
-                                  </tr>
-                                );
-                              })
-                            }
-                          </tbody>
-                        </table>
-                      </details>
-                    </>);
-                  })
-                }
+            <div className="row">
+              <div className="col my-3">
+                <div className="accordion" id="accordion" role="tablist" aria-multiselectable="true">
+                  {
+                    docTree.map(record => {
+                      return (<>
+                        <details key={record.key}>
+                          <summary>[{record.list.length}件] {record.key}</summary>
+                          <table className="table table-sm table-bordered table-responsive text-nowrap">
+                            <thead className="table-light">
+                              <tr>
+                                <th scope="col">題名</th>
+                                <th scope="col">日時</th>
+                                <th scope="col">画</th>
+                              </tr>
+                            </thead>
+                            <tbody>
+                              {
+                                record.list.map((record2) => {
+                                  return (
+                                    <tr key={record2.id}>
+                                      <td className="doc-button p-1 align-middle">
+                                        <button className="doc-button" onClick={() => onClickDoc(record2)}>
+                                          {record2.title}
+                                        </button>
+                                      </td>
+                                      <td>{record2.datetime}</td>
+                                      <td>{record2.images}</td>
+                                    </tr>
+                                  );
+                                })
+                              }
+                            </tbody>
+                          </table>
+                        </details>
+                      </>);
+                    })
+                  }
+                </div>
               </div>
             </div>
           </div>
-        </div>
-      );
-    case 'DocList':
-      return (
-        <div className="container">
-          <div className="row">
-            <div className="col my-3">
-              <h1 className="text-center">カメラバカ</h1>
+        );
+      } else {
+        return (
+          <div className="container">
+            <div className="row">
+              <div className="col my-3">
+                <h1 className="text-center">カメラバカ</h1>
+              </div>
             </div>
-          </div>
-          <div className="row">
-            <div className="col my-3">
-              <form>
-                {
-                  loadingFlg
-                    ? <button type="button" className="btn btn-light" disabled>更新中...</button>
-                    : <button type="button" className="btn btn-primary" onClick={upDateDocList}>話リストを更新</button>
-                }
-              </form>
-            </div>
-          </div>
-          <div className="row">
-            <div className="col my-3">
-              <table className="table table-sm table-bordered table-responsive text-nowrap">
-                <thead className="table-light">
-                  <tr>
-                    <th scope="col">題名</th>
-                    <th scope="col">日時</th>
-                    <th scope="col">画</th>
-                  </tr>
-                </thead>
-                <tbody>
+            <div className="row">
+              <div className="col my-3">
+                <form>
                   {
-                    docList.map((record) => {
-                      return (
-                        <tr key={record.id}>
-                          <td className="doc-button p-1 align-middle">
-                            <button className="doc-button" onClick={() => onClickDoc(record)}>
-                              {record.title}
-                            </button>
-                          </td>
-                          <td>{record.datetime}</td>
-                          <td>{record.images}</td>
-                        </tr>
-                      );
-                    })
+                    loadingFlg
+                      ? <button type="button" className="btn btn-light" disabled>更新中...</button>
+                      : <button type="button" className="btn btn-primary" onClick={upDateDocList}>一覧を更新</button>
                   }
-                </tbody>
-              </table>
+                  <button type="button" className="btn btn-secondary ml-3" onClick={() => setTreeFlg(true)}>ツリー表示にする</button>
+                </form>
+              </div>
+            </div>
+            <div className="row">
+              <div className="col my-3">
+                <table className="table table-sm table-bordered table-responsive text-nowrap">
+                  <thead className="table-light">
+                    <tr>
+                      <th scope="col">題名</th>
+                      <th scope="col">日時</th>
+                      <th scope="col">画</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {
+                      docList.map((record) => {
+                        return (
+                          <tr key={record.id}>
+                            <td className="doc-button p-1 align-middle">
+                              <button className="doc-button" onClick={() => onClickDoc(record)}>
+                                {record.title}
+                              </button>
+                            </td>
+                            <td>{record.datetime}</td>
+                            <td>{record.images}</td>
+                          </tr>
+                        );
+                      })
+                    }
+                  </tbody>
+                </table>
+              </div>
             </div>
           </div>
-        </div>
-      );
+        );
+      }
     case 'DocView':
       return (
         <div className="container">
