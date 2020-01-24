@@ -13,6 +13,7 @@ class Database:
             if self.update_flg:
                 c.execute('CREATE TABLE IF NOT EXISTS docs (id TEXT, datetime TEXT, images INTEGER, message TEXT)')
                 c.execute('CREATE TABLE IF NOT EXISTS images (id TEXT, image_index TEXT, data BLOB)')
+            conn.commit()
 
     def select_doc(self, doc_id: str) -> Dict[str, any]:
         with closing(sqlite3.connect(self.db_name)) as conn:
@@ -37,6 +38,7 @@ class Database:
                 c = conn.cursor()
                 c.execute('INSERT INTO docs (id, datetime, images, message) VALUES (?, ?, ?, ?)',
                           (doc_id, datetime, images, message))
+                conn.commit()
 
     def select_image(self, doc_id: str, image_index: str) -> bytes:
         with closing(sqlite3.connect(self.db_name)) as conn:
@@ -53,3 +55,4 @@ class Database:
                 c = conn.cursor()
                 c.execute('INSERT INTO images (id, image_index, data) VALUES (?, ?, ?)',
                           (doc_id, image_index, data))
+                conn.commit()
