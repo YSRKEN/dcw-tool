@@ -16,7 +16,7 @@ def get_docs_list_impl() -> List[Dict[str, Union[str, int]]]:
             break
         html: HTML = page.html
         temp_list: List[Dict[str, Union[str, int]]] = []
-        for row in html.find('li.item.comic.clinic'):
+        for row in html.find('div#main li.item.comic.clinic'):
             title = row.find('p.title > a', first=True).text
             doc_url: str = row.find('p.title > a', first=True).attrs['href']
             doc_id = re.sub(r'.*?(\d+)\.html', r'\1', doc_url)

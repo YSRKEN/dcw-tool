@@ -257,7 +257,7 @@ const App: React.FC = () => {
             </div>
           </div>
           <div className="row">
-            <div className="col my-3">
+            <div className="col col-md-6 my-3 mx-auto">
               <span className="text-center"><strong>【本編】</strong></span>
               {
                 imageUrlList.length > 0
