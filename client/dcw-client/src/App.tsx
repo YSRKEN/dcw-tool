@@ -350,7 +350,8 @@ const App: React.FC = () => {
         <div className="container">
           <div className="row">
             <div className="col my-3">
-              <span className="text-center"><strong>{docInfo.title}</strong></span>
+              <span className="text-center"><strong>{docInfo.title}</strong></span><br/>
+              <span className="text-center">{docInfo.datetime}</span>
             </div>
           </div>
           <div className="row">
