@@ -62,6 +62,9 @@ const getDocKey = (docInfo: DocInfo) => {
   if (docInfo.title.includes('ストロボの灯りがとてもきれいなCP+')) {
     return 'ストロボの明かりがとてもきれいなCP+';
   }
+  if (docInfo.title.includes('新しいカメラは新しいカメラバックに盛れ')) {
+    return '新しいカメラは新しいカメラバッグに盛れ';
+  }
   if (docInfo.title.includes('エレガント') && docInfo.title.includes('な')) {
     return 'ニコンヌーヴォー';
   }
