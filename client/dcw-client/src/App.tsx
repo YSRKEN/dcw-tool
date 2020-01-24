@@ -169,12 +169,12 @@ const App: React.FC = () => {
     setLoadingFlg(true);
   };
 
-  const onClickDoc = async (index: number) => {
-    setDocInfo({ ...docList[index] });
+  const onClickDoc = async (doc: DocInfo) => {
+    setDocInfo({ ...doc });
     setImageUrlList([]);
     const newImageUrlList: string[] = [];
-    for (let i = 1; i <= docList[index].images; i++) {
-      newImageUrlList.push(await loadImageUrl(docList[index].id, i));
+    for (let i = 1; i <= doc.images; i++) {
+      newImageUrlList.push(await loadImageUrl(doc.id, i));
     }
     setImageUrlList(newImageUrlList);
     setViewMode('DocView');
@@ -187,14 +187,14 @@ const App: React.FC = () => {
   const backPage = () => {
     const index = docList.findIndex(record => record.id === docInfo.id);
     if (index >= 1) {
-      onClickDoc(index - 1);
+      onClickDoc(docList[index - 1]);
     }
   };
 
   const nextPage = () => {
     const index = docList.findIndex(record => record.id === docInfo.id);
     if (index < docList.length - 1) {
-      onClickDoc(index + 1);
+      onClickDoc(docList[index + 1]);
     }
   };
 
@@ -236,11 +236,11 @@ const App: React.FC = () => {
                           </thead>
                           <tbody>
                             {
-                              record.list.map((record2, index) => {
+                              record.list.map((record2) => {
                                 return (
                                   <tr key={record2.id}>
                                     <td className="doc-button p-1 align-middle">
-                                      <button className="doc-button">
+                                      <button className="doc-button" onClick={() => onClickDoc(record2)}>
                                         {record2.title}
                                       </button>
                                     </td>
@@ -292,11 +292,11 @@ const App: React.FC = () => {
                 </thead>
                 <tbody>
                   {
-                    docList.map((record, index) => {
+                    docList.map((record) => {
                       return (
                         <tr key={record.id}>
                           <td className="doc-button p-1 align-middle">
-                            <button className="doc-button" onClick={() => onClickDoc(index)}>
+                            <button className="doc-button" onClick={() => onClickDoc(record)}>
                               {record.title}
                             </button>
                           </td>
