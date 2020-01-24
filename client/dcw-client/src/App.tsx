@@ -49,12 +49,18 @@ const getDocList = async (): Promise<DocInfo[]> => {
 
 const getDocKey = (docInfo: DocInfo) => {
   if (['ケルンの衝撃', '新たなるニコン', 'キヤノンの逆襲', 'パナソニックの帰還', 'ライカの脅威',
-      'ツァイスの攻撃', 'フジの復讐', 'シグマの覚醒', 'グレイテストの時代']
-        .includes(docInfo.title)) {
+    'ツァイスの攻撃', 'フジの復讐', 'シグマの覚醒', 'グレイテストの時代']
+    .includes(docInfo.title)) {
     return 'フォトキナ2018';
   }
   if (docInfo.title.includes('EOSの目覚め')) {
     return 'EOSの目覚め';
+  }
+  if (docInfo.title.includes('私を海に連れてって')) {
+    return 'わたしを海につれてって';
+  }
+  if (docInfo.title.includes('ストロボの灯りがとてもきれいなCP+')) {
+    return 'ストロボの明かりがとてもきれいなCP+';
   }
   if (docInfo.title.includes('エレガント') && docInfo.title.includes('な')) {
     return 'ニコンヌーヴォー';
@@ -66,8 +72,8 @@ const getDocKey = (docInfo: DocInfo) => {
   return docInfo.title;
 };
 
-const calcDocTree = (docList: DocInfo[]): {key: string, list: DocInfo[]}[] => {
-  const result: {key: string, list: DocInfo[]}[] = [];
+const calcDocTree = (docList: DocInfo[]): { key: string, list: DocInfo[] }[] => {
+  const result: { key: string, list: DocInfo[] }[] = [];
   for (const docInfo of docList) {
     const key = getDocKey(docInfo);
     let flg = false;
@@ -79,7 +85,7 @@ const calcDocTree = (docList: DocInfo[]): {key: string, list: DocInfo[]}[] => {
       }
     }
     if (!flg) {
-      result.push({key, list: [docInfo]});
+      result.push({ key, list: [docInfo] });
     }
   }
   return result;
@@ -112,13 +118,13 @@ const loadImageUrl = async (id: number, index: number) => {
   });
 };
 
-type ViewMode = 'DocList' | 'DocView';
+type ViewMode = 'DocList' | 'DocView' | 'DocTree';
 
 const App: React.FC = () => {
   const [docList, setDocList] = useState<DocInfo[]>([]);
-  const [docTree, setDocTree] = useState<{key: string, list: DocInfo[]}[]>([]);
+  const [docTree, setDocTree] = useState<{ key: string, list: DocInfo[] }[]>([]);
   const [loadingFlg, setLoadingFlg] = useState<boolean>(false);
-  const [viewMode, setViewMode] = useState<ViewMode>('DocList');
+  const [viewMode, setViewMode] = useState<ViewMode>('DocTree');
   const [docInfo, setDocInfo] = useState<DocInfo>({
     title: '',
     id: 0,
@@ -193,6 +199,68 @@ const App: React.FC = () => {
   };
 
   switch (viewMode) {
+    case 'DocTree':
+      return (
+        <div className="container">
+          <div className="row">
+            <div className="col my-3">
+              <h1 className="text-center">カメラバカ</h1>
+            </div>
+          </div>
+          <div className="row">
+            <div className="col my-3">
+              <form>
+                {
+                  loadingFlg
+                    ? <button type="button" className="btn btn-light" disabled>更新中...</button>
+                    : <button type="button" className="btn btn-primary" onClick={upDateDocList}>話リストを更新</button>
+                }
+              </form>
+            </div>
+          </div>
+          <div className="row">
+            <div className="col my-3">
+              <div className="accordion" id="accordion" role="tablist" aria-multiselectable="true">
+                {
+                  docTree.map(record => {
+                    return (<>
+                      <details key={record.key}>
+                        <summary>[{record.list.length}件] {record.key}</summary>
+                        <table className="table table-sm table-bordered table-responsive text-nowrap">
+                          <thead className="table-light">
+                            <tr>
+                              <th scope="col">題名</th>
+                              <th scope="col">日時</th>
+                              <th scope="col">画</th>
+                            </tr>
+                          </thead>
+                          <tbody>
+                            {
+                              record.list.map((record2, index) => {
+                                return (
+                                  <tr key={record2.id}>
+                                    <td className="doc-button p-1 align-middle">
+                                      <button className="doc-button">
+                                        {record2.title}
+                                      </button>
+                                    </td>
+                                    <td>{record2.datetime}</td>
+                                    <td>{record2.images}</td>
+                                  </tr>
+                                );
+                              })
+                            }
+                          </tbody>
+                        </table>
+                      </details>
+                    </>);
+                  })
+                }
+              </div>
+            </div>
+          </div>
+        </div>
+      );
     case 'DocList':
       return (
         <div className="container">
