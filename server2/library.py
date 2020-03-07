@@ -80,34 +80,20 @@ def get_doc_data_impl(doc_id: str) -> Dict[str, Union[str, int]]:
 
 
 def get_doc_image_impl(doc_id: str, image_index: str) -> bytes:
-    image_url = f'https://dc.watch.impress.co.jp/img/dcw/docs/{doc_id[0:4]}/{doc_id[4:7]}/{image_index.zfill(2)}.png'
-    image = session.get(image_url)
-    if image.ok:
-        return image.content
-
-    # 一部ページ対策
-    image_url2 = f'https://dc.watch.impress.co.jp/img/dcw/docs/{doc_id[0:4]}/{doc_id[4:7]}/{image_index.zfill(2).replace("0", "a")}.png'
-    image = session.get(image_url2)
-    if image.ok:
-        return image.content
-
-    image_url3 = f'https://dc.watch.impress.co.jp/img/dcw/docs/{doc_id[0:4]}/{doc_id[4:7]}/a{image_index.zfill(2)}.png'
-    image = session.get(image_url3)
-    if image.ok:
-        return image.content
-
-    image_url4 = f'https://dc.watch.impress.co.jp/img/dcw/docs/{doc_id[0:4]}/{doc_id[4:7]}/y{image_index.zfill(2)}.png'
-    image = session.get(image_url4)
-    if image.ok:
-        return image.content
-
-    image_url5 = f'https://dc.watch.impress.co.jp/img/dcw/docs/{doc_id[0:4]}/{doc_id[4:7]}/x{image_index.zfill(2)}.png'
-    image = session.get(image_url5)
-    if image.ok:
-        return image.content
-
-    image_url6 = f'https://dc.watch.impress.co.jp/img/dcw/docs/{doc_id[0:4]}/{doc_id[4:7]}/z{image_index.zfill(2)}.png'
-    image = session.get(image_url6)
-    if image.ok:
-        return image.content
+    url1 = f'https://dc.watch.impress.co.jp/img/dcw/docs/{doc_id[0:4]}/{doc_id[4:7]}'
+    url2 = image_index.zfill(2)
+    image_url_list = [
+        f'{url1}/{url2}.png',
+        f'{url1}/{url2.replace("0", "a")}.png',
+        f'{url1}/a{url2}.png',
+        f'{url1}/x{url2}.png',
+        f'{url1}/y{url2}.png',
+        f'{url1}/z{url2}.png',
+        f'{url1}/{url2}a.png',
+        f'{url1}/{url2}.jpg'
+    ]
+    for image_url in image_url_list:
+        image = session.get(image_url)
+        if image.ok:
+            return image.content
     return b''
