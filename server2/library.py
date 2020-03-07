@@ -81,8 +81,11 @@ def get_doc_data_impl(doc_id: str) -> Dict[str, Union[str, int]]:
 
 
 def get_doc_image_impl(doc_id: str, image_index: str) -> bytes:
+    # 構成要素を取り出す
     url1 = f'https://dc.watch.impress.co.jp/img/dcw/docs/{doc_id[0:4]}/{doc_id[4:7]}'
     url2 = image_index.zfill(2)
+
+    # 当たりそうなリンクについて対応
     image_url_list = [
         f'{url1}/{url2}.png',
         f'{url1}/{url2.replace("0", "a")}.png',
@@ -91,9 +94,17 @@ def get_doc_image_impl(doc_id: str, image_index: str) -> bytes:
         f'{url1}/y{url2}.png',
         f'{url1}/z{url2}.png',
         f'{url1}/{url2}a.png',
-        f'{url1}/{url2}.jpg'
+        f'{url1}/{url2}.jpg',
+        f'{url1}/{url2}a.jpg'
     ]
     for image_url in image_url_list:
+        image = session.get(image_url)
+        if image.ok:
+            return image.content
+
+    # さらなる特殊対応
+    if doc_id == '1128862' and image_index == '4':
+        image_url = f'{url1}/x03.png'
         image = session.get(image_url)
         if image.ok:
             return image.content
