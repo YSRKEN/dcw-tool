@@ -12,6 +12,7 @@ interface DocInfo {
   datetime: string;
   images: number;
   message: string;
+  url: string;
 }
 
 const db = new Dexie("friend_database");
@@ -32,7 +33,7 @@ const getDocInfo = async (doc_id: number): Promise<{ datetime: string, images: n
 };
 
 const getDocList = async (): Promise<DocInfo[]> => {
-  const docs: { title: string, doc_id: number }[] = await (await fetch(SERVER_PATH + '/api/docs')).json();
+  const docs: { title: string, doc_id: number, url: string }[] = await (await fetch(SERVER_PATH + '/api/docs')).json();
   const result: DocInfo[] = [];
   for (const doc of docs) {
     const docInfo = await getDocInfo(doc.doc_id);
@@ -41,7 +42,8 @@ const getDocList = async (): Promise<DocInfo[]> => {
       id: doc.doc_id,
       datetime: docInfo.datetime,
       images: docInfo.images,
-      message: docInfo.message
+      message: docInfo.message,
+      url: doc.url
     });
   }
   return result;
@@ -134,7 +136,8 @@ const App: React.FC = () => {
     id: 0,
     datetime: '',
     images: 0,
-    message: ''
+    message: '',
+    url: ''
   });
   const [imageUrlList, setImageUrlList] = useState<string[]>([]);
 
@@ -354,7 +357,8 @@ const App: React.FC = () => {
           <div className="row">
             <div className="col my-3">
               <span className="text-center"><strong>{docInfo.title}</strong></span><br/>
-              <span className="text-center">{docInfo.datetime}</span>
+              <span className="text-center">{docInfo.datetime}</span><br/>
+              <span className="text-center"><a href={docInfo.url} rel="noopener noreferrer" target="_blank">元記事へのリンク</a></span>
             </div>
           </div>
           <div className="row">

@@ -27,7 +27,8 @@ def get_docs_list_impl() -> List[Dict[str, Union[str, int]]]:
 
             temp_list.append({
                 'title': title,
-                'doc_id': int(doc_id)
+                'doc_id': int(doc_id),
+                'url': doc_url
             })
         temp_list.reverse()
         for record in temp_list:
