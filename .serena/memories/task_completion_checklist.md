@@ -1,0 +1,4 @@
+- 変更後に `git status` で差分を確認する。
+- フロントエンド変更時は `yarn test --watchAll=false` または `npm test -- --watchAll=false` を実行する。
+- 依存関係更新時は `npm audit`（または GitHub Dependabot）で脆弱性再確認する。
+- 必要に応じて `yarn build` でビルド成功を確認する。

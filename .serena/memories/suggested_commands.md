@@ -1,0 +1,7 @@
+- リポジトリ更新: `git pull`
+- 変更確認: `git status`
+- フロントエンド依存導入: `cd client/dcw-client; yarn install`（または `npm install`）
+- フロントエンド開発起動: `cd client/dcw-client; yarn start`
+- フロントエンドテスト: `cd client/dcw-client; yarn test --watchAll=false`
+- フロントエンド本番ビルド: `cd client/dcw-client; yarn build`
+- 脆弱性確認（npm利用時）: `cd client/dcw-client; npm audit`

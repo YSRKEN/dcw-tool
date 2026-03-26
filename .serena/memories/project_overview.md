@@ -1,0 +1,4 @@
+- 目的: デジカメ Watch 連載『カメラバカにつける薬』を閲覧しやすくするための Web アプリ。
+- 構成: `client/dcw-client` (React + TypeScript)、`server` (Responder + requests_html)、`server2` (Flask + requests_html)。
+- 主な役割: クライアントで一覧/閲覧UIを提供し、サーバー側で記事情報や画像情報を収集・提供する。
+- 実行環境: Windows 開発環境。
